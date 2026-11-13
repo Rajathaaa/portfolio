@@ -96,7 +96,7 @@ a{color:var(--lilac)}
 #touch{position:absolute;inset:auto 0 0 0;display:none;justify-content:space-between;align-items:flex-end;
   padding:0 max(18px,var(--sr)) max(22px,var(--sb)) max(18px,var(--sl));pointer-events:none}
 .touch.playing #touch{display:flex}
-.touch #prompt{bottom:calc(178px + var(--sb))}
+/* .touch #prompt{bottom:calc(178px + var(--sb))} */
 #dpad{position:relative;width:144px;height:144px;pointer-events:auto;touch-action:none}
 #dpad i{position:absolute;width:48px;height:48px;background:var(--ink2);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--paper);opacity:.92}
 #dpad i::before{content:"";display:block;width:0;height:0;border:0 solid transparent}
@@ -183,7 +183,7 @@ a{color:var(--lilac)}
 @media (max-height:480px){
   #title h1 br{display:none}#title h1{font-size:clamp(26px,8vh,44px)}.t-in{gap:9px}.t-sub{font-size:12px;max-width:60ch}
   .t-keys,.t-touch{display:none}.card{max-height:88%}#toast{top:calc(var(--st) + 80px)}
-  .touch #prompt{bottom:calc(22px + var(--sb))}
+  /* .touch #prompt{bottom:calc(22px + var(--sb))} */
   #dpad{width:132px;height:132px}#dpad i{width:44px;height:44px}
   #dpad i[data-d=up]{left:44px}#dpad i[data-d=left]{top:44px}#dpad i[data-d=right]{left:88px;top:44px}#dpad i[data-d=down]{left:44px;top:88px}
 }
@@ -212,12 +212,12 @@ a{color:var(--lilac)}
   <div id="prompt" class="px" role="button" tabindex="-1"></div>
   <div id="toast" class="px" role="status"></div>
 
-  <div id="touch">
+  <!-- <div id="touch">
     <div id="dpad" role="group" aria-label="Movement pad">
       <i data-d="up"></i><i data-d="left"></i><i data-d="right"></i><i data-d="down"></i>
     </div>
     <button id="abtn" aria-label="Interact">A</button>
-  </div>
+  </div> -->
 
   <div id="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-title"><div class="card px" id="card"></div></div>
 
@@ -229,7 +229,8 @@ a{color:var(--lilac)}
       <button id="start">PRESS START</button>
       <button class="t-snd" id="sndT" aria-pressed="true"><svg viewBox="0 0 12 12" aria-hidden="true" shape-rendering="crispEdges" fill="currentColor"><path d="M1 4h2l3-3v10L3 8H1z"/><g class="waves"><path d="M8 4h1v4H8zM10 2h1v8h-1z"/></g><g class="xmark"><path d="M8 4h1v1H8zM10 4h1v1h-1zM9 5h1v1H9zM8 6h1v1H8zM10 6h1v1h-1z"/></g></svg><span class="lbl">SOUND ON</span></button>
       <div class="t-keys"><span><kbd>WASD</kbd>/<kbd>ARROWS</kbd> move</span><span><kbd>E</kbd>/<kbd>SPACE</kbd> enter</span><span><kbd>ESC</kbd> close</span><span><kbd>M</kbd> quest log</span><span><kbd>N</kbd> sound</span></div>
-      <div class="t-touch">Slide your thumb on the pad to walk. Tap <b>A</b> to enter a building.</div>
+      <!-- <div class="t-touch">Slide your thumb on the pad to walk. Tap <b>A</b> to enter a building.</div> -->
+       <div class="t-touch">Touch and drag anywhere to walk. Tap the <b>ENTER</b> label to open a building.</div>
       <button class="t-skip" id="skip">JUST SHOW ME THE RESUME</button>
     </div>
   </div>
@@ -247,7 +248,7 @@ a{color:var(--lilac)}
 /* ---------- CONTENT (from the resume) ---------- */
 const LINKS={
   gh:{qgen:"https://github.com/Rajathaaa/PrepAI",cap:"https://github.com/Rajathaaa/Image-Captioning-Model",verity:"https://github.com/Rajathaaa/Confirmation-Tool"},
-  li:"https://www.linkedin.com/in/rajatha-prasad", email:"rajatha.r.prasad@gmail.com", phone:"+91 9686667061",
+  li:"https://www.linkedin.com/in/rajatha-prasad", email:"rajatha.r.prasad@gmail.com", phone:":)",
   ghUser:"https://github.com/Rajathaaa",
   resume:"" /* optional: put resume.pdf next to index.html and set this to "resume.pdf" to show a download button */
 };
@@ -687,19 +688,31 @@ $('prompt').addEventListener('click',interact);
 $('menu').addEventListener('click',()=>$('dlg').classList.contains('on')?closeDlg():openMenu());
 $('mute').addEventListener('click',()=>setSound(!S.sound));
 $('sndT').addEventListener('click',()=>setSound(!S.sound));
-$('abtn').addEventListener('pointerdown',e=>{e.preventDefault();interact()});
-$('touch').addEventListener('contextmenu',e=>e.preventDefault());
+// $('abtn').addEventListener('pointerdown',e=>{e.preventDefault();interact()});
+// $('touch').addEventListener('contextmenu',e=>e.preventDefault());
 
-/* touch pad: press and slide anywhere on the pad, diagonals included */
-const dp=$('dpad'),dpKeys={up:'d_up',left:'d_left',right:'d_right',down:'d_down'};let dpId=null;
-function dpSet(e){const r=dp.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),m=Math.hypot(dx,dy);
-  const on={up:false,left:false,right:false,down:false};
-  if(m>r.width*.1){const nx=dx/m,ny=dy/m;on.right=nx>.38;on.left=nx<-.38;on.down=ny>.38;on.up=ny<-.38}
-  dp.querySelectorAll('i').forEach(i=>{const d=i.dataset.d;keys[dpKeys[d]]=on[d];i.classList.toggle('on',on[d])})}
-function dpClear(){dpId=null;dp.querySelectorAll('i').forEach(i=>{keys[dpKeys[i.dataset.d]]=false;i.classList.remove('on')})}
-dp.addEventListener('pointerdown',e=>{e.preventDefault();dpId=e.pointerId;try{dp.setPointerCapture(e.pointerId)}catch(_){}dpSet(e)});
-dp.addEventListener('pointermove',e=>{if(e.pointerId===dpId)dpSet(e)});
-['pointerup','pointercancel','lostpointercapture'].forEach(ev=>dp.addEventListener(ev,e=>{if(e.pointerId===dpId||ev==='lostpointercapture')dpClear()}));
+// /* touch pad: press and slide anywhere on the pad, diagonals included */
+// const dp=$('dpad'),dpKeys={up:'d_up',left:'d_left',right:'d_right',down:'d_down'};let dpId=null;
+// function dpSet(e){const r=dp.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),m=Math.hypot(dx,dy);
+//   const on={up:false,left:false,right:false,down:false};
+//   if(m>r.width*.1){const nx=dx/m,ny=dy/m;on.right=nx>.38;on.left=nx<-.38;on.down=ny>.38;on.up=ny<-.38}
+//   dp.querySelectorAll('i').forEach(i=>{const d=i.dataset.d;keys[dpKeys[d]]=on[d];i.classList.toggle('on',on[d])})}
+// function dpClear(){dpId=null;dp.querySelectorAll('i').forEach(i=>{keys[dpKeys[i.dataset.d]]=false;i.classList.remove('on')})}
+// dp.addEventListener('pointerdown',e=>{e.preventDefault();dpId=e.pointerId;try{dp.setPointerCapture(e.pointerId)}catch(_){}dpSet(e)});
+// dp.addEventListener('pointermove',e=>{if(e.pointerId===dpId)dpSet(e)});
+// ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>dp.addEventListener(ev,e=>{if(e.pointerId===dpId||ev==='lostpointercapture')dpClear()}));
+
+/* drag to move: press anywhere on the map and hold; the hero walks toward your finger / cursor (mouse and touch) */
+const drag={on:false,id:null,x:0,y:0};
+cv.addEventListener('pointerdown',e=>{if(!S.started||S.paused)return;e.preventDefault();drag.on=true;drag.id=e.pointerId;drag.x=e.clientX;drag.y=e.clientY;try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+cv.addEventListener('pointermove',e=>{if(drag.on&&e.pointerId===drag.id){drag.x=e.clientX;drag.y=e.clientY}});
+['pointerup','pointercancel','lostpointercapture'].forEach(ev=>cv.addEventListener(ev,e=>{if(e.pointerId===drag.id)drag.on=false}));
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+function dragVec(){if(!drag.on)return null;
+  const r=cv.getBoundingClientRect(),sc=r.width/VW,hx=r.left+(S.px-clampCam(S.cam.x,VW,W))*sc,hy=r.top+(S.py-8-clampCam(S.cam.y,VH,H))*sc;
+  const dx=drag.x-hx,dy=drag.y-hy,d=Math.hypot(dx,dy),dead=sc*4;
+  return d<dead?null:{x:dx/d,y:dy/d,m:Math.max(.25,Math.min(1,(d-dead)/(sc*10)))}}   /* speed eases in as you pull further from the hero */
+
 
 const MAP={ArrowLeft:'l',a:'l',A:'l',ArrowRight:'r',d:'r',D:'r',ArrowUp:'u',w:'u',W:'u',ArrowDown:'d',s:'d',S:'d'};
 addEventListener('keydown',e=>{
@@ -710,7 +723,8 @@ addEventListener('keydown',e=>{
   else if(e.key==='n'||e.key==='N')setSound(!S.sound);
   else if(e.key==='m'||e.key==='M')$('dlg').classList.contains('on')?closeDlg():openMenu()});
 addEventListener('keyup',e=>{if(MAP[e.key])keys[MAP[e.key]]=false});
-addEventListener('blur',()=>{for(const k in keys)keys[k]=false;dpClear()});
+// addEventListener('blur',()=>{for(const k in keys)keys[k]=false;dpClear()});
+addEventListener('blur',()=>{for(const k in keys)keys[k]=false;drag.on=false});
 addEventListener('resize',resize);
 addEventListener('orientationchange',()=>setTimeout(resize,250));
 if(window.visualViewport)visualViewport.addEventListener('resize',resize);
@@ -727,8 +741,12 @@ let last=0,stepT=0;
 function update(dt){
   if(S.started&&!S.paused){
     const L=keys.l||keys.d_left,Rr=keys.r||keys.d_right,U=keys.u||keys.d_up,D=keys.d||keys.d_down;
-    let dx=(Rr?1:0)-(L?1:0),dy=(D?1:0)-(U?1:0);S.moving=!!(dx||dy);
-    if(S.moving){const m=Math.hypot(dx,dy),sp=78*dt;dx=dx/m*sp;dy=dy/m*sp;
+    // let dx=(Rr?1:0)-(L?1:0),dy=(D?1:0)-(U?1:0);S.moving=!!(dx||dy);
+    // if(S.moving){const m=Math.hypot(dx,dy),sp=78*dt;dx=dx/m*sp;dy=dy/m*sp;
+    let dx=(Rr?1:0)-(L?1:0),dy=(D?1:0)-(U?1:0),k=1;
+    if(!dx&&!dy){const v=dragVec();if(v){dx=v.x;dy=v.y;k=v.m}}   /* keys win; otherwise follow the drag */
+    S.moving=!!(dx||dy);
+    if(S.moving){const m=Math.hypot(dx,dy),sp=78*dt*k;dx=dx/m*sp;dy=dy/m*sp;
       if(dy>0)S.dir=0;else if(dy<0)S.dir=1;if(dx<0&&Math.abs(dx)>=Math.abs(dy))S.dir=2;else if(dx>0&&Math.abs(dx)>=Math.abs(dy))S.dir=3;
       let nx=Math.max(8,Math.min(W-8,S.px+dx));if(!hit({x:nx-4,y:S.py-6,w:8,h:6}))S.px=nx;
       let ny=Math.max(14,Math.min(H-4,S.py+dy));if(!hit({x:S.px-4,y:ny-6,w:8,h:6}))S.py=ny;
